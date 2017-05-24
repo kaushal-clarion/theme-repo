@@ -1,0 +1,38 @@
+<script>
+  function get_country_by_ip(){
+    var country_code_key = '{{shop.domain}}'+'-ip-country-code';
+    var country_name_key = '{{shop.domain}}'+'-ip-country-name';
+    country_name_by_cookies = getCookie(country_name_key);
+    country_code_by_cookies = getCookie(country_code_key);
+    if(country_name_by_cookies == "" || country_code_by_cookies == ""){
+      jQuery.ajax({
+        url: '//freegeoip.net/json/',
+        type: 'POST',
+        dataType: 'jsonp',
+        success: function(location) {
+          show_country_notification(location.country_name, location.country_code);
+          setIPCookie(country_name_key, location.country_name);
+          setIPCookie(country_code_key, location.country_code);
+        }
+      });
+    }else{
+      show_country_notification(country_name_by_cookies, country_code_by_cookies)
+    }
+  }
+  function show_country_notification(user_country, user_country_code){
+    if('{{shop.address.country_upper}}' !== user_country.toUpperCase()){
+      {% for section in (1..10) %}
+         {% assign flag_country_key = "store-flat-country-code-" | append: section%}
+         {% assign flag_redirect-key = "store-redirect-url-" | append: section%}
+         if(user_country_code === '{{settings[flag_country_key]}}') {
+           {% if settings[flag_redirect-key] != blank %}
+              var redirection_link = "<a href='{{settings[flag_redirect-key]}}'>{{settings[flag_redirect-key] | split: '//' | last | capitalize | remove: '/'}}</a>";
+              var redirection_message = '{{settings.store-redirection-message}}';
+              $("#notification-message").html(redirection_message.replace("-Link-", redirection_link).replace("-CountryName-", user_country));
+              $("#notification").show();
+           {% endif %}
+         }      	
+      {% endfor %}
+    }
+  }
+</script>

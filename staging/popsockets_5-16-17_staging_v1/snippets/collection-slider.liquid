@@ -1,0 +1,24 @@
+ {% assign default_collection = collections[settings.collection-default-name]%}
+     
+  <div class="slider responsive lazy collection-slideshow">
+    <a href="{{default_collection.url}}" class="collection-title {%if settings.enable-collection-slider-title%}enable-for-web{%endif%} {%if settings.enable-collection-slider-title-on-mobile%}enable-for-mobile{%endif%}">
+      {% if settings.enable-collection-title-as-slider-title%}
+        <span>{{default_collection.title}}</span>
+      {% else%}
+        <span>{{settings.collection-slider-title}}</span>
+      {% endif%}
+    </a>
+    
+     {% for c_product in default_collection.products %}
+<div>
+ 
+<div class="image">  <a href="{{c_product.url}}">
+  <img class="slide-image" alt="Alt" src="{{ c_product.images[0] | img_url: 'medium' }}" />
+  <img class="hidden" src="{{ c_product.images[1] | img_url: 'medium' }}" alt="{{ product.images.last.alt | escape }}" />
+  <span class="desktop-title">{{c_product.title}}</span></a>
+  </div>
+   
+</div>
+    {% endfor%}
+</div>
+    

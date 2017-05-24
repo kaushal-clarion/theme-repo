@@ -1,0 +1,237 @@
+
+{%if settings.add-custom-upload%}
+  {% assign products_per_page = settings.collection-products-per-row | times: settings.collection-number-of-rows %}
+{% else %}
+  {% assign products_per_page = settings.collection-products-per-row | times: settings.collection-number-of-rows %}
+{% endif%}
+{% paginate collection.products by products_per_page %}
+
+<div class="collection">
+
+  {% if collection.image or collection.description != blank or settings.collection-tag-filtering %}
+    <div class="collection-header">
+      {% if collection.image and settings.collection-show-featured-image %}
+        {% assign collection_nav_class = 'collection-bubble-nav'%}
+        <div class="collection-featured-image">
+          <img alt="{{ collection.image.alt | escape }}" src="{{ collection | img_url: '1024x1024' }}">
+        </div>
+      {% endif %}
+
+      {% if collection.description != blank and settings.collection-show-description %}
+        <div class="collection-description rte">
+          {{ collection.description }}
+        </div>
+      {% endif %}
+
+      {% assign tagFiltering = false %}
+      {% assign collectionSorting = false %}
+      {% if settings.collection-tag-filtering and collection.all_tags.size > 0 and collection.handle %}
+        {% assign tagFiltering = true %}
+      {% endif %}
+      {% if settings.collection-sorting %}
+        {% assign collectionSorting = true %}
+      {% endif %}
+
+      {% if tagFiltering or collectionSorting %}
+        <div class="collection-filters">
+
+          {% if collectionSorting %}
+            <div class="collection-sorting {% if collection.current_vendor %}vendor-collection{% endif %} select-wrapper">
+
+              {% assign sortHandles = "manual|best-selling|price-ascending|price-descending|title-descending|title-ascending|created-ascending|created-descending" | split: "|" %}
+              {% capture sortTitles %}{{ 'collections.collection_sorting.manual' | t }}|{{ 'collections.collection_sorting.best_selling' | t }}|{{ 'collections.collection_sorting.price_ascending' | t }}|{{ 'collections.collection_sorting.price_descending' | t }}|{{ 'collections.collection_sorting.title_descending' | t }}|{{ 'collections.collection_sorting.title_ascending' | t }}|{{ 'collections.collection_sorting.created_ascending' | t }}|{{ 'collections.collection_sorting.created_descending' | t }}{% endcapture %}
+              {% assign sortTitles = sortTitles | split: "|" %}
+
+              {% for handle in sortHandles %}
+                {% if collection.sort_by == blank and collection.default_sort_by == handle %}
+                  {% assign currentTitle = sortTitles[forloop.index0] %}
+                {% elsif collection.sort_by == handle %}
+                  {% assign currentTitle = sortTitles[forloop.index0] %}
+                {% endif %}
+              {% endfor %}
+
+              <span class="selected-text"></span>
+              <select>
+                {% for handle in sortHandles %}
+                  {% if collection.sort_by == blank and collection.default_sort_by == handle %}
+                    <option value="{{handle}}" selected="selected">{{ sortTitles[forloop.index0] }}</option>
+                  {% elsif collection.sort_by == handle %}
+                    <option value="{{handle}}" selected="selected">{{ sortTitles[forloop.index0] }}</option>
+                  {% else %}
+                    <option value="{{handle}}">{{ sortTitles[forloop.index0] }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+          {% endif %}
+
+          {% if tagFiltering %}
+            <div class="collection-tags-wrapper select-wrapper">
+              <span class="selected-text"></span>
+              <select class="collection-tags" data-url="{{ collection.handle }}">
+                <option value="all">{{ 'collections.collection.all_tags' | t }}</option>
+                {% for tag in collection.all_tags %}
+                  {% if current_tags contains tag %}
+                    <option value="{{ tag | handle }}" selected="selected">{{ tag }}</option>
+                  {% else %}
+                    <option value="{{ tag | handle }}">{{ tag }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+          {% endif %}
+
+        </div>
+      {% endif %}
+
+    </div>
+  {% endif %}
+  {% if collection.title == 'All Products'%}
+    <div class="collection-products rows-of-{{ settings.collection-products-per-row }}">
+      <div id="collection-list" class="clearfix">
+        {% for product_obj in collection.products %}
+          {% include 'all-collection-item' %}
+        {% else %}
+          <p class="empty">{{ 'collections.collection.empty' | t }}</p>
+        {% endfor %}
+      </div>
+      <div id="product-list-foot"></div>
+    </div>
+  {%else%}
+    <div class='{{collection_nav_class}}'>	
+      {% include 'collection-navigation'%}
+    </div>
+    <div class="collection-products rows-of-{{ settings.collection-products-per-row }}">
+      {%if settings.add-custom-upload%}
+        {% assign disable_collections = settings.custom-upload-disable_collections | split:',' %}
+        {% unless disable_collections contains collection.title%}
+          <article id="product-list-item" class="product-list-item">
+            <figure data-url="{{settings.custom-upload-url}}" class="product-list-item-thumbnail">
+              <a href="{{settings.custom-upload-url}}">
+                {% if settings.custom-upload-show-image%}
+                    <img alt="{{settings.custom-upload-title}}" src="{{ "custom-upload-image" | strip | append: '.jpg' | asset_url}}">
+                {% else%}
+                    <img alt="{{settings.custom-upload-title}}" src="{{"upload_popsocket.png" | asset_url}}">
+                {%endif%}
+              </a>
+            </figure>
+
+            <div class="product-list-item-details">
+              <h2 class="product-list-item-title">
+              <a href="{{settings.custom-upload-url}}">{{settings.custom-upload-title}}</a>
+              </h2>
+            </div>
+          </article>
+        {% endunless%}
+      {% endif%}
+      <div id="collection-list" class="clearfix">
+        {% for product in collection.products %}
+          {% include 'collection-product-item' %}
+        {% else %}
+          <p class="empty">{{ 'collections.collection.empty' | t }}</p>
+        {% endfor %}
+      </div>
+      <div id="product-list-foot"></div>
+    </div>
+  {%endif%}
+
+</div>
+<div id="pagination-parent">
+  {% include 'pagination' %}
+</div>
+<div id="pagination-loader">
+  <img src="{{ 'loading.gif ' | asset_url }}">
+</div>
+
+{% endpaginate %}
+{% if settings.instagram-widget or settings.twitter-widget %}
+<div class="social-widget-wrapper">
+
+  {% if settings.social-widget-title != blank %}
+  <h2 class="section-title">{{ settings.social-widget-title }}</h2>
+  {% endif %}
+
+  {% if settings.social-widget-blurb != blank %}
+  <div class="social-widget-blurb rte">
+    {{ settings.social-widget-blurb }}
+  </div>
+  {% endif %}
+
+  {% if settings.instagram-widget %}
+  {% include 'instagram-widget' %}
+  {% endif %}
+
+  {% if settings.twitter-widget %}
+  {% include 'twitter-widget' %}
+  {% endif %}
+</div>
+{% endif %}
+
+<script>
+  /*
+  To scrolling pagination on collection page
+  */
+
+  var pInfScrLoading = false;
+  var pInfScrDelay = 100;
+
+  function pInfScrExecute() {
+    if($(document).height() - 800 < ($(document).scrollTop() + $(window).height())) {
+      var loadingImage;
+      pInfScrNode = $('.next').last();	
+      pInfScrURL = $('.next a').last().attr("href");
+      if(!pInfScrLoading && pInfScrNode.length > 0 && pInfScrNode.css('display') != 'none') {
+        return $.ajax({
+          type: 'GET',
+          url: pInfScrURL,
+          beforeSend: function() {
+            pInfScrLoading = true;
+            $("#pagination-loader").show();
+          },
+          success: function(data) {
+            // remove loading feedback
+            pInfScrNode.next().remove();
+            var filteredData = $(data).find(".product-list-item");
+            filteredData.appendTo( $("#collection-list:not(.filtered)") );
+            $('.pagination').html($(data).find(".pagination"));
+            $("#pagination-loader").hide();
+            pInfScrLoading = false;
+            $('figure.product-list-item-thumbnail').click(function(n, r) {
+              var url;
+              url = !$(this).hasClass("quick-shop-modal-trigger") ? $(this).data("url") : "";
+              if (url) {
+                return window.location = url;
+              }
+            });
+          },
+          dataType: "html"
+        });
+      }
+    }
+    return $.Deferred();
+  }
+  
+  function callInfScroll() {
+    var collectionListOffsetTop = $('#collection-list').offset().top;
+    var collectionListOuterHeight = $('#collection-list').outerHeight();
+    var windowHeight = $(window).height();
+
+    if((collectionListOffsetTop + collectionListOuterHeight) < windowHeight) {
+      pInfScrExecute().done(function () {
+        callInfScroll();
+      });
+    }
+  }
+
+  $(function () {
+    $(window).scroll(function(){
+      pInfScrExecute();
+      if( $(document).height() - 800 > $(document).scrollTop() + $(window).height() ) {
+        pInfScrDelay = 100;
+      }
+    });
+    if($('.main-container').hasClass('collection-template')) {
+      callInfScroll();
+    }
+  });
+</script>

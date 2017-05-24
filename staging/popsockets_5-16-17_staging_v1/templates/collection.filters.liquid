@@ -1,0 +1,667 @@
+{% assign products_per_page = settings.collection-products-per-row | times: settings.collection-number-of-rows %}
+
+{%- assign color_tags = '' -%}
+{%- assign style_tags = '' -%}
+{%- for tag in collection.tags -%}
+	{% assign prefix = tag | truncate: 6, '' %}
+	{% if prefix == 'color-' %}
+		{% assign color_tags = color_tags | append: ',' | append: tag %}
+	{% endif %}
+	{% if prefix == 'style-' %}
+		{% assign style_tags = style_tags | append: ',' | append: tag %}
+	{% endif %}
+{%- endfor -%}
+{%- assign color_tags = color_tags | remove_first: ',color-' | split: ',color-' -%}
+{%- assign style_tags = style_tags | remove_first: ',style-' | split: ',style-' -%}
+
+<div class="collection {% unless collection.image and settings.collection-show-featured-image %}no-image{% endunless %}">
+  {%if collection.image %}
+    <div class="collection-header">
+      {% if collection.image %}
+        {% assign collection_nav_class = 'collection-bubble-nav'%}
+        <div class="collection-featured-image">
+          <img alt="{{ collection.image.alt | escape }}" src="{{ collection.image | img_url: '1024x1024' }}">
+        </div>
+      {% else %}
+        <div class="collection-plain-banner desktop">
+          {{ collection.title | upcase }}
+        </div>
+      {% endif %}
+
+      {% if collection.description != blank and settings.collection-show-description %}
+        <div class="collection-description rte">
+          {{ collection.description }}
+        </div>
+      {% endif %}
+
+      {% assign tagFiltering = false %}
+      {% assign collectionSorting = false %}
+      {% if settings.collection-tag-filtering and collection.all_tags.size > 0 and collection.handle %}
+        {% assign tagFiltering = true %}
+      {% endif %}
+      {% if settings.collection-sorting %}
+        {% assign collectionSorting = true %}
+      {% endif %}
+    </div>
+  {% else %}
+  <div class="collection-plain-banner desktop">
+    {{ collection.title | upcase }}
+  </div>        
+  {% endif %}
+  {% if collection.title == 'All Products'%}
+    <div class="collection-products rows-of-{{ settings.collection-products-per-row }}">
+      <div id="collection-list" class="clearfix">
+        {% for product_obj in collection.products %}
+          {% include 'all-collection-item' %}
+        {% else %}
+          <p class="empty">{{ 'collections.collection.empty' | t }}</p>
+        {% endfor %}
+        <div id="product-list-foot"></div>
+      </div>
+    </div>
+  {% else %}
+  
+      <div id="collection-filters-spacer"></div>
+      <div id="collection-filters">          
+        <div class="collection-plain-banner mobile">
+          {{ 'collections.listing.slider_header' | t | upcase }}
+        </div>
+        <div id="filter-banner-left">
+          <div class="collection-dropdown-wrapper custom-select-wrapper desktop">
+            <input class="cover-checkbox" type="checkbox" id="collection-dropdown-checkbox"/>
+            <label id="collection-dropdown-label" class="cover" for="collection-dropdown-checkbox">
+              Collections
+            </label>
+            <ul class="collection-dropdown">
+              {% assign collTitle = collection.title | downcase %}
+              {% for link in linklists.shop-collections.links %}
+                {% assign linkTitle = link.object.title | downcase %}
+              <li{% if collTitle == linkTitle %} class="active-collection"{% endif %}> 
+                <a href="{{ link.url }}">
+                  <span class="{% if collTitle == linkTitle %}active-collection{% endif %}">
+                  {{ link.title }}
+                  </span>
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div  class="collection-dropdown-wrapper custom-select-wrapper mobile">
+            <input class="cover-checkbox" type="checkbox" id="collection-dropdown-checkbox"/>
+            <label id="collection-dropdown-label" class="cover" for="collection-dropdown-checkbox">
+              Collections
+            </label>
+            <ul id="collection-slider" class="collection-dropdown">
+              {% assign collTitle = collection.title | downcase %}
+              {% for link in linklists.shop-collections.links %}
+                {% assign linkTitle = link.object.title | downcase %}
+              <li data-test="{{ collTitle }} {{ linkTitle }}"{% if collTitle == linkTitle %} class="active-collection"{% endif %}>
+                <a href="{{ link.url }}">
+                  <span class="{% if collTitle == linkTitle %}active-collection{% endif %}">
+                  {{ link.title }}
+                  </span>
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+            <div id="beforeArrow">&#xf04b;</div>
+            <div id="afterArrow">&#xf04b;</div>
+          </div>
+        </div>
+        <input type="checkbox" id="filters-toggle-checkbox"/>
+        <div id="filters-toggle-wrapper">
+          <label id="filters-toggle-label" class="cover" for="filters-toggle-checkbox">
+            Filter & Sort
+          </label>
+        </div>
+        {% if color_tags.size > 0 and style_tags.size > 0%}
+        <div id="filter-banner-center" class="mobile-toggle">
+          <div class="collection-filter-dropdown-wrapper">
+            {% assign colors = color_tags %}
+            {% assign styles = style_tags %}
+            <div class="filter-title"><h2>Filter By</h2></div>
+            {% if color_tags.size > 0 %}
+            <div class="filter-select-wrapper custom-select-wrapper">
+              <input class="cover-checkbox" type="checkbox" id="filters-color-dropdown-checkbox"/>
+              <label id="filters-color-dropdown-label" class="cover" for="filters-color-dropdown-checkbox">
+                Color
+              </label>
+              <ul id="color-filter-drop" class="filter-drop">
+              {% for color in colors %}
+                {% assign c = color %}
+                <li>
+                  <input type="checkbox" name="filter-color" id="filter-color-{{ c | replace: ' ', '_' | replace: '&', 'and' }}" value="color-{{ c }}"/>
+                  <label class="selectable" for="filter-color-{{ c | replace: ' ', '_' | replace: '&', 'and' }}">{{ c }}</label>
+                </li>
+              {% endfor %}
+                <li class="button-container">
+                  <div>
+                    <input type="checkbox" name="filter-color" id="filter-color-clear" value="" checked="checked"/>
+                    <label class="clear-filters" for="filter-color-clear">Clear</label>
+                  </div>
+                  <div>
+                    <label class="apply-filters">Done</label>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            {% endif %}
+            {% if style_tags.size > 0 %}
+            <div class="filter-select-wrapper custom-select-wrapper">
+              <input class="cover-checkbox" type="checkbox" id="collection-style-dropdown-checkbox"/>
+              <label id="filters-color-dropdown-label" class="cover" for="collection-style-dropdown-checkbox">
+                Style
+              </label>
+              <ul id="style-filter-drop" class="filter-drop">
+              {% for style in styles %}
+                {% assign s = style %}
+                <li>
+                  <input type="checkbox" name="filter-style" id="filter-style-{{ s | replace: ' ', '_' | replace: '&', 'and' }}" value="style-{{ s }}"/>
+                  <label class="selectable" for="filter-style-{{ s | replace: ' ', '_' | replace: '&', 'and' }}">{{ s }}</label>
+                </li>
+              {% endfor %}
+                <li class="button-container">
+                  <div>
+                    <input type="checkbox" name="filter-style" id="filter-style-clear" value="" checked="checked"/>
+                    <label class="clear-filters" for="filter-style-clear">Clear</label>
+                  </div>
+                  <div>
+                    <label class="apply-filters">Done</label>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            {% endif %}
+            <div class="active-filters-container desktop">
+              <div class="active-filters">
+                <div class="filter-reset-text">
+                  <h3>Active Filters (<span class="filter-resetter">Reset</span>)</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        <div id="filter-banner-right" class="mobile-toggle">
+          <div class="collection-sort-wrapper">
+            {% assign sorting = "Featured,Newest-to-Oldest,Oldest-to-Newest,A - Z,Z - A,Bestsellers" | split: "," %}
+            {% assign values = "manual,created-descending,created-ascending,title-ascending,title-descending,best-selling" | split: "," %}
+            {% assign defaultIndex = 0 %}
+            {% for v in values %}
+              {% if v == collection.default_sort_by %}
+                {% assign defaultIndex = forloop.index0 %}
+              {% endif %}
+            {% endfor %}
+            <div class="sort-title"><h2>Sort by</h2></div>
+            <div class="sort-select-wrapper custom-select-wrapper replaceable-selector">
+              <input class="cover-checkbox" type="checkbox" id="filters-sort-dropdown-checkbox"/>
+              <label id="filters-sort-dropdown-label" class="cover" for="filters-sort-dropdown-checkbox">
+                {{ sorting[defaultIndex] }}
+              </label>
+              <ul id="filters-sort-drop" class="sort-drop">
+              {% for s in sorting %}
+                {% assign index = forloop.index0 %}
+                {% assign value = values[index] %}
+                {% if collection.default_sort_by != 'manual' and value == 'manual' %}
+                  {% continue %}
+                {% endif %}
+
+                <li>
+                  <input type="radio" name="filter-sort" id="filters-sort-{{ s | remove: ' ' }}" value="{{ value }}" {% if forloop.index0 == defaultIndex %}checked="checked"{% endif %}/>
+                  <label class="selectable" for="filters-sort-{{ s | remove: ' ' }}">{{ s }}</label>
+                </li>
+              {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="mobile-button-container mobile-toggle">
+          <div>
+            <label class="filter-resetter" for="filter-style-clear">Clear</label>
+          </div>
+          <div>
+            <label class="apply-filters">Done</label>
+          </div>
+        </div>
+        <div class="active-filters-container mobile">
+          <div class="filter-reset-text">
+            <h3>Active Filters (<span class="filter-resetter">Reset</span>)</h3>
+          </div>
+          <div class="active-filters">
+          </div>
+        </div>
+      </div>
+    <div class="collection-products rows-of-{{ settings.collection-products-per-row }}">
+      {%if settings.add-custom-upload%}
+        {% assign disable_collections = settings.custom-upload-disable_collections | split:',' %}
+        {% unless disable_collections contains collection.title%}
+          <article id="product-list-item" class="product-list-item">
+            <figure data-url="{{settings.custom-upload-url}}" class="product-list-item-thumbnail">
+              <a href="{{settings.custom-upload-url}}">
+                {% if settings.custom-upload-show-image%}
+                    <img alt="{{settings.custom-upload-title}}" src="{{ 'custom-upload-image' | strip | append: '.jpg' | asset_url}}">
+                {% else%}
+                    <img alt="{{settings.custom-upload-title}}" src="{{ 'upload_popsocket.png' | asset_url}}">
+                {%endif%}
+              </a>
+            </figure>
+
+            <div class="product-list-item-details">
+              <h2 class="product-list-item-title">
+              <a href="{{settings.custom-upload-url}}">{{settings.custom-upload-title}}</a>
+              </h2>
+            </div>
+          </article>
+        {% endunless%}
+      {% endif%}
+      <div id="collection-list" class="clearfix filterable">
+        {% if collection.products.size != 0 %}
+          {% comment %}
+          {% for product in collection.products %}
+            {% include 'collection-product-item' %}
+            <a href="{{ product.url | within: collection.products }}" style="position: absolute; visibility: hidden; ">
+              {{ product.title }}
+              <img src="{{ product.image | img_url }}" alt="{{ product.title }}">
+            </a>
+          {% endfor %}
+          {% endcomment %}
+        {% else %}
+          <p class="empty">{{ 'collections.collection.empty' | t }}</p>
+        {% endif %}
+      </div>
+      <div id="product-list-foot"></div>
+    </div>
+  {%endif%}
+
+</div>
+
+{% if settings.instagram-widget or settings.twitter-widget %}
+<div class="social-widget-wrapper">
+
+  {% if settings.social-widget-title != blank %}
+  <h2 class="section-title">{{ settings.social-widget-title }}</h2>
+  {% endif %}
+
+  {% if settings.social-widget-blurb != blank %}
+  <div class="social-widget-blurb rte">
+    {{ settings.social-widget-blurb }}
+  </div>
+  {% endif %}
+
+  {% if settings.instagram-widget %}
+  {% include 'instagram-widget' %}
+  {% endif %}
+
+  {% if settings.twitter-widget %}
+  {% include 'twitter-widget' %}
+  {% endif %}
+</div>
+{% endif %}
+
+
+
+<script type="text/javascript">
+"use strict";
+
+$(function(){
+  var productsPerRow = '{{ settings.collection-products-per-row }}';
+  var numberOfRows = '{{ settings.collection-number-of-rows }}';
+  var paginateBy = productsPerRow * numberOfRows;
+  var $colList = $(".filterable");
+  var $container = $(".collection-products");
+  var $activeFilters = $(".active-filters");
+  var fesa = new FESA();
+  
+  var isMobileiOS = /version\/([\w\.]+).+?mobile\/\w+\s(safari)/i.test(navigator.userAgent);
+
+  $(window).on('message', function(e){
+
+    var message = e.originalEvent;
+    var eventData = $.parseJSON(message.data);
+
+    if(message.origin === "http://www.justuno.com" && isMobileiOS)
+    {
+      if(eventData.showiframe)
+      {
+        $(".template-collection .main-container.no-image").addClass("shipping-banner");
+      }
+      else if(eventData.close)
+      {
+        $(".template-collection .main-container.no-image").removeClass("shipping-banner");
+      }
+    }
+  });
+
+  $colList.empty();
+  $(".cover-checkbox").prop("checked", false);
+  applyFilters($colList, $container, fesa);
+
+
+  $(".replaceable-selector [type='radio']").change(function(e){
+    var val = $(".replaceable-selector [type='radio']:checked ~ label").text();
+    $(this).closest(".custom-select-wrapper").find(".cover-checkbox").prop("checked", false);
+
+    if(e.type == "change")
+    {
+      $(".replaceable-selector .cover").text(val);
+      applyFilters($colList, $container, fesa);
+    }
+  });
+
+  $(".replaceable-selector [type='radio']").click(function(){
+    var val = $(".replaceable-selector [type='radio']:checked ~ label").text();
+    $(this).closest(".custom-select-wrapper").find(".cover-checkbox").prop("checked", false);
+    $(".replaceable-selector .cover").text(val);
+  });
+
+  $(".clear-filters").click(function(){
+    $("#collection-filters").find("[type='checkbox']").prop('checked', false);
+    $('#' + $(this).attr('for')).prop('checked', true);
+    applyFilters($colList, $container, fesa);
+  });
+
+  $(".filter-resetter").click(function(){
+    $("#collection-filters").find("[type='checkbox']").prop('checked', false);
+    $('.button-container [type="checkbox"]').prop('checked', true);
+    applyFilters($colList, $container, fesa);
+  });
+
+  $(".filter-drop li:not(.button-container) [type='checkbox']").change(function(){
+    $(".filter-drop").each(function(){
+      if($(this).find(":checked").length > 1)      {
+        $(this).find(".button-container input").prop("checked", false);
+      }
+    });
+  });
+
+  $(".apply-filters").click(function(){
+    $(this).closest(".custom-select-wrapper").find(".cover-checkbox").prop("checked", false);
+    applyFilters($colList, $container, fesa);
+
+    if($(this).closest(".mobile-button-container").hasClass("mobile-toggle"))
+    {
+      $(window).scrollTop(0);
+    }
+  });
+
+  function applyFilters($colList, $container, fesa) {
+    $colList.empty();
+
+    $activeFilters.find(".filter-button").remove();
+
+    var query_conjunctions = $(".filter-drop").map(function () {
+      var query_disjunctions = $(this).find("input[type='checkbox']:checked").filter(function () {
+        return $(this).val().trim() !== '';
+      }).map(function () {
+        return fesa.s().tag($(this).val().trim());
+      }).get();
+
+      if (query_disjunctions.length) {
+        return fesa.s().or(query_disjunctions);
+      }
+      return fesa.s();
+    }).get();
+
+    var query = fesa.s();
+    var queries = query.and.apply(query, query_conjunctions);
+
+    $(".filter-drop").each(function () {
+
+      var $dropdown = $(this);
+
+      $(this).find("input[type='checkbox']:checked").each(function () {
+        var $checked = $(this);
+        var value = $checked.val();
+        var text = $checked.find("~ label").text();
+
+        if(value.trim() != "")
+        {
+          $activeFilters.append("<div class='" + $checked.attr("id") + " filter-button'>" + text + "</div>");
+          var $activeFilter = $(".active-filters ." + $checked.attr("id"));
+          toggleStickyBanner();
+
+          $activeFilter.click(function(){
+            var id = $checked.attr("id");
+            $("#" + id).prop("checked", false);
+            $(this).remove();
+
+            if($(".filter-button").length == 0)
+            {
+              $("#" + id).closest(".custom-select-wrapper").find(".button-container [type='checkbox']").prop("checked", true);
+            }
+
+            applyFilters($colList, $container, fesa);
+          });
+        }
+      });
+    });
+      
+    $(".active-filters-container").toggle($(".filter-button").length > 0);
+
+    $("#filters-toggle-checkbox").prop("checked", false);
+
+    $container.data('fesa-queries', queries);
+    $container.data('fesa-sortrule', getSortRule());
+    $container.data('scrolling-next-page', 0);
+
+    $container.removeClass('scrolling__done-loading');
+    $container.addClass('scrolling__clear-needed');
+
+    populateScrollArea();
+  }
+
+  var populate_run_pass = 1000;
+
+  function populateFilters($colList, $container, pageNumber) {
+    populate_run_pass++;
+
+    var queries = $container.data('fesa-queries');
+    var sortRule = $container.data('fesa-sortrule');
+
+    return fesa.s().paginate(paginateBy).page(pageNumber).or(queries).count(true).collection({{ collection.handle | json }}).sort(sortRule).e().then(function(products, count) {
+    
+      $("#collection-list").toggleClass("filtered", count > 0);
+
+      var colItem = "";  
+      
+      if(products.length) {
+        $.each(products, function (key, product) {        
+
+          var hasSecondaryImage = (product.images.length > 1) ? "has-secondary-image" : "";
+          var itemURL = product.url;
+          var background = (product.images.length > 1) ? "background-image:url('" + product.images[1] + "')" : "";
+
+          var secondImgUrl = product.images[1] || ""; 
+
+          var defaultVariant = product.variants.filter(function (variant) {
+                                  return variant.featured_image == secondImgUrl;
+                                })[0];
+          var defaultVariantId = defaultVariant && defaultVariant.id;
+          var prodUrlAnchor = (defaultVariantId) ? '<a href="' + itemURL + '?variant=' + defaultVariantId + '">' : '<a href="' + itemURL + '">';
+
+
+          var quickShopText = {{ 'products.product.quick_shop_trigger_text' | t | json }};
+          var quickShop = "";
+
+
+          {% if settings.collection-product-hover == 'quick-shop' %}
+            quickShop = '<span class="quick-shop-modal-trigger" data-product-handle="' + product.handle + '" data-product-id="' + product.id + '" data-variant-id="' + product.variants[0].id + '" data-vendor-url="/collections/vendor?q=' + product.vendor + '">' + quickShopText +'</span>';
+          {% elsif settings.collection-product-hover == 'stock-level' %}          
+            quickShop = '<a class="product-list-item-inventory" href="' + itemURL + '"></a>';
+          {% endif %}
+
+          var soldOutText = {{ 'products.product.sold_out' | t | json }};
+          var onSaleText = {{ 'products.product.on_sale' | t | json }};
+
+          var productStatus = "";
+
+          {% if settings.product-badges %}
+            if (!product.available) {
+              productStatus = '<span class="product-list-item-unavailable" data-title="' + soldOutText + '"></span>';
+            } else if (+product.compare_at_price > +product.price) {
+              productStatus = '<span class="product-list-item-on-sale" data-title="' + onSaleText + '"></span>';
+            }
+          {% endif %}
+
+          colItem = '<div data-test="' + [pageNumber, populate_run_pass] + '" class="product-list-item" id="product-list-item-' + product.id + '" data-product-id="' + product.id + '">'
+                +   '<div class="product-list-item-thumbnail '+ hasSecondaryImage +'" data-url="' + itemURL + '" style="' + background + '">'
+                +     prodUrlAnchor
+                +       '<img src="' + product.images[0].replace(/\.([^.]+)$/, '_medium.$1') + '" alt="' + product.title + '" />'
+                +     '</a>'
+                +     quickShop
+                +     productStatus
+                +    '</div>'
+                +   '<div class="product-list-item-details">' 
+                +    '<div class="product-list-item-title"><a href="' + itemURL + '">' + product.title + '</a></div>'
+                +   '</div>'
+                + '</div>';
+
+          $(colItem).appendTo($colList);
+        });
+      } else if ($colList.children().length == 0) {     
+        colItem = "<h3 class='no-results'>No results found</h3>";
+        $colList.html($(colItem));
+      }
+
+      return {
+        done_loading: products.length === 0
+      }
+    });
+
+  }
+
+  /*
+  To scrolling pagination on collection page
+  */
+  // This function checks to see if the area has been scrolled too low and needs more content
+  function populateScrollArea() {
+    if ($container.is('.scrolling__done-loading') || $container.is('.scrolling__loading')) {
+      return;
+    }
+
+    if ($container.is('.scrolling__clear-needed')) {
+      //clear it
+      $container.removeClass('scrolling__clear-needed');
+    }
+
+    if (!$container.data('fesa-queries') || !$container.data('fesa-sortrule')) {
+      console.log('tried to load before we had things');
+      return;
+    }
+
+    var page_to_load = $container.data('scrolling-next-page') || 0;
+
+    if (($container.offset().top + $container.outerHeight()) - ($(window).scrollTop() + $(window).height()) < 500) { // TODO: fix 1
+      $container.data('scrolling-next-page', page_to_load + 1);
+      $container.addClass('scrolling__loading');
+      populateFilters($colList, $container, page_to_load + 1).then(function (filters_response) {
+        console.log(filters_response.done_loading);
+        $container.removeClass('scrolling__loading');
+
+        if (filters_response.done_loading && $container.not('.scrolling__clear-needed')) {
+          $container.addClass('scrolling__done-loading');
+        }
+
+        populateScrollArea();
+      }) 
+    }
+  }
+
+  $(window).scroll(populateScrollArea);
+
+  function getSortRule() {
+    var sortVal = $("[name='filter-sort']:checked").val(); 
+
+    return {
+      'created-descending': { desc: 'created' },
+      'created-ascending': { asc : 'created' },
+      'title-ascending': { asc:  'title' },
+      'title-descending': { desc: 'title' },
+      'best-selling': { desc: 'bestselling' },
+      /* 'manual': 'manual', default case */
+    }[sortVal] || 'manual';
+  }
+
+  $(document).click(function(e){
+    var $chain = $(e.target).parents().andSelf();
+    if ($chain.is('.custom-select-wrapper')) 
+    {
+      if ($chain.filter('.custom-select-wrapper').find('.cover-checkbox:checked').length === 0)
+      {
+        $('.custom-select-wrapper .cover-checkbox').prop("checked", false);
+      }
+    } 
+    else 
+    {
+      $('.custom-select-wrapper .cover-checkbox').prop("checked", false);
+    }
+  });
+
+  var currentCollectionIndex = $(".mobile .collection-dropdown li.active-collection").index();
+
+  $(window).on("load resize", function(){
+    $(".mobile .collection-dropdown:not(.slick-initialized)").slick({
+      centerMode: true,
+      slide: 'li',
+      arrows: false,
+      infinite: true,
+      mobileFirst: true,
+      slidesToShow: 3,
+      centerPadding: '-100px',
+      responsive: [
+        {
+          breakpoint: 426,
+          settings: {
+            centerMode: true,
+            slide: 'li',
+            arrows: false,
+            infinite: true,
+            mobileFirst: true
+          }
+        }
+      ]
+    }).slickGoTo(currentCollectionIndex);
+  });
+
+  $("#beforeArrow").click(function(){
+    $("#collection-slider").slickPrev();
+  });
+  $("#afterArrow").click(function(){
+    $("#collection-slider").slickNext();
+  });
+
+  $(window).on("load scroll resize", function(){
+    toggleStickyBanner();
+  });
+
+  function toggleStickyBanner() {
+    var $window = $(window);
+    var $banner = $("#collection-filters");
+    var $spacer = $("#collection-filters-spacer");
+
+    var top;
+    var spacerHeight;
+    var mobile = false;
+
+    if($window.width() < 1023) {
+      top = $('header.main-header').height() || 0;
+      spacerHeight = $("header.main-header").innerHeight()
+      mobile = true;
+    } else {
+      top = $('.navigation.full-width').height() || 0;
+      spacerHeight = $banner.innerHeight();
+    }
+
+    $("#collection-filters").toggleClass("sticky-banner", mobile || ($window.scrollTop() + top) > $spacer.offset().top);
+    $("#collection-filters.sticky-banner").css("top", top);
+
+    if($(".sticky-banner").length > 0) {
+      $("#collection-filters-spacer").css("height", $banner.innerHeight());
+    } else {
+      $("#collection-filters").css("top", 0);
+      $("#collection-filters-spacer").css("height", 0);
+    }
+  }
+});
+</script>
+

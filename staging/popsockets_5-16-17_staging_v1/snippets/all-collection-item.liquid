@@ -1,0 +1,29 @@
+<div class="collection-item">
+    <div class="collection-item-images">
+      <div class="collection-item-image">
+         {% assign product_obj_image = product_obj.images.first%}
+         <a href="{{product_obj.url}}">
+           <img alt="{{ product_obj_image.alt | escape }}" src="{{ product_obj_image | img_url: '1024x1024' }}">
+        </a>
+      </div>
+    </div>
+    <div class="collection-product-details-wrapper">
+      <h2 class="collection-product-title">
+        <a href="{{product_obj.url}}">
+          {{product_obj.title}}
+        </a>
+      </h2>
+      <hr/>
+      <div itemprop="description" class="collection-product-description rte">
+        {{product_obj.description}}
+      </div>
+      <br/>
+      <p itemtype="http://schema.org/Offer" itemscope="" itemprop="offers" class="product-price">
+        <span class="product-price-minimum money">
+          {{ product_obj.price_min | money }}
+        </span>
+
+        <link href="http://schema.org/InStock" itemprop="availability">
+      </p>
+     </div>
+</div>

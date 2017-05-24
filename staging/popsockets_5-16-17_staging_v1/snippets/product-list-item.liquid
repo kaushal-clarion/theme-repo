@@ -1,0 +1,73 @@
+{% assign item = product %}
+{% if template contains 'search' %}
+  {% assign item = item %}
+{% elsif template contains 'product' %}
+  {% assign item = prod %}
+{% endif %}
+
+{% if settings.product-hover == 'stock-level' and item.available %}
+  {% assign total = 0 %}
+  {% assign threshold = settings.product-stock-level-overlay-threshold | times: 1 %}
+  {% assign infinity = false %}
+  {% for variant in item.variants %}
+    {% if variant.inventory_management == null %}
+      {% assign infinity = true %}
+    {% elsif variant.inventory_management == '' %}
+      {% assign infinity = true %}
+    {% elsif variant.inventory_management == 'shopify' and variant.inventory_policy == 'continue' %}
+      {% assign infinity = true %}
+    {% elsif infinity == false %}
+      {% capture temp %}{{ total | plus: variant.inventory_quantity }}{% endcapture %}
+      {% assign total = temp | times: 1 %}
+    {% endif %}
+  {% endfor %}
+  {% assign stockText = 'products.product.stock_indicator_message' | t: num: total %}
+{% endif %}
+{% unless item.type == "Customizer" or search.terms contains "Cust" %}
+<article class="product-list-item" id="product-list-item-{{ item.id }}" data-product-id="{{ item.id }}">
+
+  {% assign secondaryImage = false %}
+  {% if item.images.size > 1 and settings.product-hover == 'image-flip' %}
+    {% assign secondaryImage = true %}
+    {% assign secondary_image_url = item.images[1] | img_url: 'grande'%}
+    {% assign default_variant_id = item.images[1].variants.first.id%}
+  {% endif %}
+
+  <figure class="product-list-item-thumbnail {% if secondaryImage %}has-secondary-image{% endif %}" data-url="{{ item.url | within: collection }}" style="{% if secondaryImage %}background-image:url({{ secondary_image_url}}){% endif %}">
+    {% if default_variant_id%}
+       <a href="{{ item.url | within: collection | append: "?variant=" | append: default_variant_id}}">
+    {% else%}
+       <a href="{{ item.url | within: collection}}">
+    {% endif %}
+      <img src="{{ item | img_url: 'grande' }}" alt="{{ item.featured_image.alt | escape }}" />
+    </a>
+
+    {% if settings.product-hover == 'quick-shop' %}
+      <span class="quick-shop-modal-trigger" data-product-handle="{{ item.handle }}" data-product-id="{{ item.id }}" data-variant-id="{{ item.selected_or_first_available_variant.id }}" data-vendor-url="{{ item.vendor | url_for_vendor }}">{{ 'products.product.quick_shop_trigger_text' | t }}</span>
+
+    {% elsif settings.product-hover == 'stock-level' %}
+
+      {% if item.available and infinity == false and total < threshold %}
+        <a class="product-list-item-inventory" href="{{ item.url }}">{{ stockText }}</a>
+      {% endif %}
+
+    {% endif %}
+
+    {% if settings.product-badges %}
+      {% if item.available != true %}
+        <span class="product-list-item-unavailable" data-title="{{ 'products.product.sold_out' | t }}"></span>
+      {% elsif item.compare_at_price_min > item.price_min %}
+        <span class="product-list-item-on-sale" data-title="{{ 'products.product.on_sale' | t }}"></span>
+      {% endif %}
+    {% endif %}
+  </figure>
+
+  <div class="product-list-item-details">
+    {% if settings.product-vendor %}
+      <p class="product-list-item-vendor">{{ item.vendor | link_to_vendor }}</p>
+    {% endif %}
+    <h2 class="product-list-item-title"><a href="{{ item.url | within: collection }}">{{ item.title }}</a></h2>
+  </div>
+
+</article>
+{% endunless %}

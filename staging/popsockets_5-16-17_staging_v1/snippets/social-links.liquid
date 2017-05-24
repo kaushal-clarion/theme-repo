@@ -1,0 +1,57 @@
+<div class="footer-linklist">
+  {% if settings.footer-headers %}
+    <h4 class="section-title">{{ 'layout.footer.social_heading'| t }}</h4>
+  {% endif %}
+
+  <ul>
+    {% if settings.social_facebook_link != blank %}
+      <li>
+        <a class="social-icon facebook" href="{{ settings.social-facebook-link }}" title="{{ 'layout.footer.social_platform' | t: name: shop.name, platform: 'Facebook' }}">Facebook</a>
+      </li>
+    {% endif %}
+    {% if settings.social_twitter_link != blank %}
+      <li>
+        <a class="social-icon twitter" href="{{ settings.social-twitter-link }}" title="{{ 'layout.footer.social_platform' | t: name: shop.name, platform: 'Twitter' }}">Twitter</a>
+      </li>
+    {% endif %}
+    {% if settings.social_pinterest_link != blank %}
+      <li>
+        <a class="social-icon pinterest" href="{{ settings.social-pinterest-link }}" title="{{ 'layout.footer.social_platform' | t: name: shop.name, platform: 'Pinterest' }}">Pinterest</a>
+      </li>
+    {% endif %}
+    {% if settings.social_instagram_link != blank %}
+      <li>
+        <a class="social-icon instagram" href="{{ settings.social-instagram-link }}" title="{{ 'layout.footer.social_platform' | t: name: shop.name, platform: 'Instagram' }}">Instagram</a>
+      </li>
+    {% endif %}
+    {% if settings.social_google_plus_link != blank %}
+      <li>
+        <a class="social-icon google-plus" href="{{ settings.social-googleplus-link }}" rel="publisher" title="{{ 'layout.footer.social_platform' | t: name: shop.name, platform: 'Google Plus' }}">Google Plus</a>
+      </li>
+    {% endif %}
+    {% if settings.social_tumblr_link != blank %}
+      <li>
+        <a class="social-icon tumblr" href="{{ settings.social-tumblr-link }}" title="{{ 'layout.footer.social_platform' | t: name: shop.name, platform: 'Tumblr' }}">Tumblr</a>
+      </li>
+    {% endif %}
+    {% if settings.social_youtube_link != blank %}
+      <li>
+        <a class="social-icon youtube" href="{{ settings.social-youtube-link }}" title="{{ 'layout.footer.social_platform' | t: name: shop.name, platform: 'YouTube' }}">YouTube</a>
+      </li>
+    {% endif %}
+    {% if settings.social_kickstarter_link != blank %}
+      <li>
+        <a class="social-icon kickstarter" href="{{ settings.social-kickstarter-link }}" title="{{ 'layout.footer.social_platform' | t: name: shop.name, platform: 'Kickstarter' }}">Kickstarter</a>
+      </li>
+    {% endif %}
+    {% if settings.social_vimeo_link != blank %}
+      <li>
+        <a class="social-icon vimeo" href="{{ settings.social-vimeo-link }}" title="{{ 'layout.footer.social_platform' | t: name: shop.name, platform: 'Vimeo' }}">Vimeo</a>
+      </li>
+    {% endif %}
+    {% if settings.social_email_link != blank %}
+      <li>
+        <a class="social-icon email" href="mailto:{{ settings.social-email-link }}" title="{{ 'layout.footer.social_platform' | t: name: shop.name, platform: 'Email' }}">{{ settings.social-email-link }}</a>
+      </li>
+    {% endif %}
+  </div>

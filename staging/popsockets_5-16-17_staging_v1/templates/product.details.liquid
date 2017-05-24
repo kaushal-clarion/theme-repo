@@ -1,0 +1,272 @@
+
+{% include 'breadcrumbs' %}
+
+{% assign variant = product.selected_or_first_available_variant %}
+
+{% if collection == null or collection.handle == 'frontpage' or collection.handle == 'all' %}
+  {% assign found_a_collection = false %}
+  {% for c in product.collections %}
+    {% if found_a_collection == false and c.handle != 'frontpage' and c.handle != 'all' %}
+      {% assign found_a_collection = true %}
+      {% assign collection = c %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+<div class="popsocket-details main-product-wrap product-wrap" itemscope itemtype="http://schema.org/Product" data-product-id="{{ product.id }}">
+
+  <meta itemprop="url" content="{{ shop.url }}{{ product.url }}">
+  <meta itemprop="image" content="{{ product | img_url: 'grande' }}">
+
+  <div class="product-images">
+
+    {% if settings.product-images-layout == 'slideshow' %}
+
+      <div class="product-main-image">
+        <div class="product-mobile-section">
+          
+      <h1 class="product-title mobile-title" itemprop="name">{{ product.title }} </h1>
+        </div>
+        {% assign mainImage = variant.featured_image | default: product.featured_image %}
+        {% if mainImage != blank %}
+          <img alt="{{ mainImage.alt | escape }}" src="{{ mainImage | img_url: '1024x1024' }}">
+        {% else %}
+          <img class="product-no-images" src="{{ 'no-image.svg' | asset_url }}" alt="{{ 'products.product.no_image' | t }}" />
+        {% endif %}
+
+        {% if settings.product-zoom %}
+          <div class="product-zoom"></div>
+        {% endif %}
+      </div>
+      <div class="product-thumbnails-outer-wrapper">
+        <div class="product-thumbnails-wrapper">
+          <div class="product-thumbnails ">
+              <div class="product-thumbnail first">
+                {% assign productImage = product.featured_image %}
+                <img alt="{{ productImage.alt | escape }}" src="{{ productImage | img_url: '1024x1024' }}">
+              </div>
+              <div class="product-thumbnail active second">
+                <img alt="{{ mainImage.alt | escape }}" src="{{ mainImage | img_url: '1024x1024' }}">
+              </div>
+          </div>
+        </div>
+      </div>
+    {% else %}
+
+      {% for image in product.images %}
+        <div class="product-image">
+          <img alt="{{ image.alt | escape }}" src="{{ image | img_url: '1024x1024' }}">
+        </div>
+      {% endfor %}
+
+    {% endif %}
+  </div>
+
+  <div class="product-details-wrapper">
+    <div class="product-details">
+
+      <h1 class="product-title desktop-title" itemprop="name">{{ product.title }} 
+        
+      </h1>
+      <p class="product-price" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+
+        <meta itemprop="priceCurrency" content="{{ shop.currency }}">
+        <meta itemprop="price" content="{{ product.price_min | money_without_currency }}">
+
+        <span class="product-price-compare money">
+          {% if variant.compare_at_price_min > variant.price_min %}
+            {{ variant.compare_at_price_min | money }}
+          {% endif %}
+        </span>
+
+        {% if product.available %}
+          <link itemprop="availability" href="http://schema.org/InStock">
+        {% else %}
+          <link itemprop="availability" href="http://schema.org/OutOfStock">
+        {% endif %}
+
+      </p>
+
+      <form action="/cart/add" method="post" id="product-form-{{ product.id }}" class="product-form">
+        {% assign acolors = product.variants | map: 'option1' | uniq %}
+        {% assign pcolors = product.variants | map: 'option2' | uniq %}
+        {% assign ascolors = settings.accordion_colors | split: ',' %}
+        {% assign pscolors = settings.platform_colors | split: ',' %}
+        {% assign option_count = 1 %}
+        {% assign instructions = product.metafields['Product Indentifier'] %}
+        {% assign key = 'Button Number'%}
+        {% if instructions[key] %}
+          <input type="hidden" name="properties[Button]" value="{{instructions[key]}}" /> 
+        {% else%}
+          {% assign product_description = product.description | strip_html | split: ':' | last | split: ' '%}
+          <input type="hidden" name="properties[Button]" value="{{product.title}} {{product_description.first}}" />       
+        {% endif%}
+        {% for option in product.options %}
+           {% assign option_key = 'option' | append: option_count%}
+           <input class='product-{{option_key}}' type="hidden" name="properties[{{option}}]" value="{{product.selected_or_first_available_variant | map: option_key }}" />
+           {% assign option_count = option_count | plus: 1%}
+        {% endfor %}
+        <style type = "text/css">
+          {% for scolor in ascolors %}
+          {% assign color_arry = scolor | split: '(' %}
+          {% assign color_key = color_arry | first | strip %}
+          {% assign color_value = color_arry | last | split: ')' | last | strip %}
+          div.accordion-{{color_key}}{
+            background-color: {{color_value}};
+          }
+          {% endfor%}
+          {% for scolor in pscolors %}
+          {% assign color_arry = scolor | split: '(' %}
+          {% assign color_key = color_arry | first | strip %}
+          {% assign color_value = color_arry | last | split: ')' | last | strip %}
+          div.platform-{{color_key}}{
+            background-color: {{color_value}};
+          }
+          {% endfor%}
+        </style>
+       
+        
+        <div class="swatch-container-tip">
+        <span class="swatches-tip">Add a Pop of color for $2</span>
+        <div class="swatch-container">
+        <div class="select clearfix">
+          <div id="platform-img">
+             <img src="{{ 'accordion-product-details.png' | asset_url }}" alt="Pick Accordion Color">
+          </div>
+          
+          <div id='accordion' class="selector-wrapper color-swatches-new">
+            <label class="hide-element" for="product-select-option-0">Pick Accordion Color</label>
+            
+            {% for color in acolors %}
+             <div class="swatches-wrapper">
+              <div value='{{color}}' class="circle accordion-{{color | replace: ' ', '_' | downcase}}"></div>
+             </div>
+            {% endfor%}
+          </div>
+        </div>
+        
+        <div class="select clearfix">
+          <div id="platform-img">
+             <img src="{{ 'platform-product-details.png' | asset_url }}" alt="Pick Platform Color">
+          </div>
+          <div id='platform' class="selector-wrapper">
+            <label class="hide-element" for="product-select-option-0">Pick Platform Color</label>
+            
+            {% for color in pcolors %}
+            <div class="swatches-wrapper">
+              <div value='{{color}}' class="circle platform-{{color | replace: ' ', '_' | downcase}}"></div>
+            </div>
+            {% endfor%}
+          </div>
+        </div>
+        </div>
+        </div>
+        
+        <p class="product-price price-variant" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+
+        <meta itemprop="priceCurrency" content="{{ shop.currency }}">
+        <meta itemprop="price" content="{{ product.price_min | money_without_currency }}">
+
+        <span class="product-price-minimum money">
+          {{ variant.price_min | money }}
+        </span>
+
+        <span class="product-price-compare money">
+          {% if variant.compare_at_price_min > variant.price_min %}
+            {{ variant.compare_at_price_min | money }}
+          {% endif %}
+        </span>
+
+        {% if product.available %}
+          <link itemprop="availability" href="http://schema.org/InStock">
+        {% else %}
+          <link itemprop="availability" href="http://schema.org/OutOfStock">
+        {% endif %}
+
+      </p>
+        
+        <div class="product-options" style="display:none;">
+          <select class="product-variants" name="id" id="product-variants-{{ product.id }}">
+            {% for variant in product.variants %}
+              <option {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money }}</option>
+            {% endfor %}
+          </select>
+        </div>
+          
+       
+        
+        
+        <div class="product-quantity inline-input-wrapper clearfix">
+          <label class="hide-element">{{ 'general.general.quantity' | t }}</label>
+          
+          
+          <input type='button' value='+' class='qtyplus' field='quantity' />
+          <input type="text" name="quantity" value="1" id ="quantity_product" min="1"/>
+          <input type='button' value='-' class='qtyminus' field='quantity' />
+          
+          
+          
+          {% if settings.enable-popup-on-product and settings.default-popup-product and product.type == "Customizer" or product.type == 'Single PopSocket' or product.type == 'Popsockets' or product.type == 'PopSocket' %}
+        	<div class="product-cart add-to-cart add-to-cart-swatches-btn" style="display:inline-block">
+        {% else%}
+            <div class="add-to-carts {{product.type}}">
+        {% endif%}
+          {% if variant.available %}
+            <input style="" type="submit" value="{{ 'products.product.add_to_cart' | t }}" />
+          {% else %}
+            <input type="button" class="disabled" disabled="disabled" value="{{ 'products.product.sold_out' | t }}" />
+          {% endif %}
+
+      
+              
+              
+              
+              
+          
+        </div>
+        <div class="product-message"></div>
+
+      
+
+      {% if product.description != blank %}
+        <div class="product-description rte product-details" itemprop="description">
+          {{ product.description }}
+        </div>
+      {% endif %}
+
+    </div>
+        
+        </div>
+</form>
+      
+  </div>
+
+</div>
+
+
+{% if settings.show-offer-info-on-product %}
+  <div class="offer-info">{{settings.product-offer-information}}</div>
+{% endif %}
+  
+{% if settings.related-products %}
+  {% include 'related-products' %}
+{% endif %}
+{% if settings.enable-popup-on-product and settings.default-popup-product %}
+  {% include 'popclip-popup' %}
+{% endif%}
+  
+<section class="loader quick-shop-wrapper"> 
+  <span class="spinner">
+    <span></span>
+    <span></span>
+    <span></span>
+  </span>
+</section>
+<script>
+  // required for splitting variants
+  // see ProductView
+  window.products["{{ product.id }}"] = {{ product | json }};
+  FirstVariant["{{ product.id }}"] = {{ product.selected_or_first_available_variant.id | json }};
+                  
+                  
+</script>

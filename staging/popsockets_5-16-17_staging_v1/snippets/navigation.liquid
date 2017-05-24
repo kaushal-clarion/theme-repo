@@ -1,0 +1,225 @@
+
+<div class="navigation-wrapper">
+  <nav class="navigation full-width">
+<div class="nav-container">
+    <div class="branding {% if settings.use-logo %}has-logo{% endif %}">
+      {% if settings.use-logo %}
+        <a class="logo  {% if settings.use-logo %}has-retina{% endif %}" href="/">
+          <img class="logo-regular" alt="{{ shop.name | escape }}" src="{{ 'logo.png' | asset_url }}">
+          {% if settings.use-retina-logo %}
+            <img class="logo-retina" alt="{{ shop.name | escape }}" src="{{ 'logo-retina.png' | asset_url }}">
+          {% endif %}
+        </a>
+      {% else %}
+        <a class="logo mobile-nav-logo" href="/">{{ shop.name }}</a>
+      {% endif %}
+
+      {% if settings.use-sticky-header-logo %}
+        <a class="logo sticky-logo " style="display:none;" href="/"><img alt="{{ shop.name | escape }}" src="{{ 'logo.png' | asset_url }}"></a>
+      {% endif %}
+      <span class="navigation-toggle">&#xe603;</span>
+    </div>
+
+    <ul class="nav-place-new">
+      <li class="mobile-link">
+        <form class="search-form" action="/search" method="get">
+          <input class="search-input" name="q" type="text" placeholder="{{ 'layout.header.search_placeholder' | t }}" value="{{ search.terms }}" />
+          <input type="submit" value="&#xe606;" />
+        </form>
+      </li>
+      {% for link in linklists.main-menu.links %}
+        {% include 'has-dropdown' %}
+        <li class="{% if hasDropdown %}has-dropdown{% elsif hasMegaNav %}has-mega-nav{% endif %} {% include 'for-looper' %}" {% if hasMegaNav %}data-mega-nav="true"{% endif %}>
+          <a data-linklist-trigger="{{ link.title | downcase | handle }}" href="{{ link.url }}">{{ link_title }} {% if hasDropdown or hasMegaNav %}<span class="enter-linklist" data-enter-linklist>&#xe600;</span>{% endif %}</a>
+
+          {% if hasDropdown %}
+
+            
+              {% if linkHandle == 'shop-popsockets' or linkHandle == 'shop-collections' or linkHandle == 'companion-products' %}
+          	    <ul data-linklist="{{ linkHandle }}" class='shop-collection'>
+                  <li class="nav-back">
+                    <span class="back"><span class="icon">&#xe601;</span> {{ 'layout.mobile_navigation.back' | t }}</span>
+                  </li>
+
+                  {%if settings.add-custom-upload-in-menu %}
+                    {%if linkHandle == 'shop-popsockets' or linkHandle == 'shop-collections'%}
+                      <li>
+                        <a href="{{settings.custom-upload-url}}">
+                          <span class='nav-img'>
+                            {% if settings.custom-upload-show-image%}
+                                <img alt="{{settings.custom-upload-title}}" src="{{ "custom-upload-image" | strip | append: '.jpg' | asset_url}}">
+                            {% else%}
+                                <img alt="{{settings.custom-upload-title}}" src="{{"upload_popsocket.png" | asset_url}}">
+                            {%endif%}
+                          </span>
+                          <span class='nav-text'>
+                            {{settings.custom-upload-title}}
+                          </span>                          
+                        </a>
+                      </li>
+                    {% endif%}
+                  {% endif%}
+                  {% for link in linklists[linkHandle].links %}
+                    {%if link.type == 'collection_link'%}
+                      {% assign collection = link.object%}
+                      {% assign product_nav = collection.products.first%}
+                    {%else%}
+                       {%if link.type == 'product_link'%}
+                    	  {% assign product_nav = link.object%}
+                       {% endif %}
+                    {% endif %}
+                    {% if product_nav%}
+                      {% assign product_nav_image = product_nav.images.first%}
+                      <li>
+                        <a href="{{ link.url }}" class="{{link.object}}">
+                          <span class='nav-img'>
+                            <img src="{{ product_nav_image | img_url: 'small' }}"  alt="{{ product_nav.title | escape }}"/>
+                          </span>
+                          <span class='nav-text'>
+                            {{ link.title }}
+                          </span>                          
+                        </a>
+                      </li>
+                    {%else%}
+                      <li>
+                        <a href="{{ link.url }}">{{ link.title }}</a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              {% else %}
+          		<ul data-linklist="{{ linkHandle }}">
+                  <li>
+                    <span class="back"><span class="icon">&#xe601;</span> {{ 'layout.mobile_navigation.back' | t }}</span>
+                  </li>
+                  {% for link in linklists[linkHandle].links %}
+                    <li>
+                      <a href="{{ link.url }}">{{ link.title }}</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+
+          {% elsif hasMegaNav %}
+
+            <ul class="mobile-mega-nav" data-linklist="{{ linkHandle }}">
+              <li>
+                <span class="back"><span class="icon">&#xe601;</span> {{ 'layout.mobile_navigation.back' | t }}</span>
+              </li>
+
+              {% assign items = 'mega-nav-1|mega-nav-2|mega-nav-3' | split: '|' %}
+              {% assign itemCount = 0 %}
+              {% for item in items %}
+
+                {% capture enabled %}{{ item }}{% endcapture %}
+                {% assign linklist = settings[enabled] %}
+
+                {% if linklists[linklist].links.size > 0 %}
+                  <li class="has-dropdown">
+                    <a class="{% if hasMegaNav %}mega-nav-list-title{% endif %}" data-linklist-trigger="{{ linklists[linklist].title | downcase | handle }}" href="{{ linklists[linklist].url }}">
+                      {% if hasMegaNav %}
+                        {{ linklists[linklist].title }}
+                        <span class="enter-linklist">&#xe600;</span>
+                      {% else %}
+                        {{ linklists[linklist].title }}
+                      {% endif %}
+                    </a>
+                    <ul data-linklist="{{ linklists[linklist].title | downcase | handle }}">
+                      <li>
+                        <span class="back"><span class="icon">&#xe601;</span> {{ 'layout.mobile_navigation.back' | t }}</span>
+                      </li>
+                      {% for link in linklists[linklist].links %}
+                        <li>
+                          <a href="{{ link.url }}">{{ link.title }}</a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+
+            {% assign items = 'mega-nav-1|mega-nav-2|mega-nav-3' | split: '|' %}
+            {% assign itemCount = 0 %}
+            {% for item in items %}
+              {% capture enabled %}{{ item }}{% endcapture %}
+              {% if settings[enabled] %}
+                {% assign itemCount = itemCount | plus: 1 %}
+              {% endif %}
+            {% endfor %}
+
+            {% if itemCount > 0 %}
+              <div class="mega-nav">
+
+                {% if settings.mega-nav-image %}
+                  <figure class="mega-nav-image">
+                    <img alt="{{ shop.name | escape }}" src="{{ 'mega-nav-image-default.jpg' | asset_url }}" data-image="{{ 'mega-nav-image-default.jpg' | asset_url }}" data-alt="{{ shop.name | escape }}">
+                  </figure>
+                {% endif %}
+
+                <div class="mega-nav-list-wrapper">
+                  {% for item in items %}
+
+                    {% capture enabled %}{{ item }}{% endcapture %}
+                    {% assign linklist = settings[enabled] %}
+
+                    {% if linklists[linklist].links.size > 0 %}
+
+                      <ul class="mega-nav-list">
+                        <li class="mega-nav-list-title">{{ linklists[linklist].title }}</li>
+
+                        {% for link in linklists[linklist].links %}
+
+                          {% if settings.mega-nav-image %}
+                            {% if settings.mega-nav-image %}
+                              {% assign megaNavImageSrc = 'mega-nav-image-default.jpg' | asset_url %}
+                              {% assign megaNavImageAlt = shop.name %}
+                            {% else %}
+                              {% assign megaNavImageSrc = 'no-image.svg' | asset_url %}
+                              {% assign megaNavImageAlt = 'No image' %}
+                            {% endif %}
+
+                            {% if link.type == 'collection_link' %}
+                              {% capture megaNavImageAlt %}{{ link.object.title | escape }}{% endcapture %}
+                              {% if collections[link.handle].image %}
+                                {% capture megaNavImageSrc %}{{ link.object | img_url: 'large' }}{% endcapture %}
+                              {% else %}
+                                {% capture megaNavImageSrc %}{{ link.object.products.first | img_url: 'large' }}{% endcapture %}
+                              {% endif %}
+                            {% elsif link.type == 'product_link' %}
+                              {% capture megaNavImageAlt %}{{ link.object.title | escape }}{% endcapture %}
+                              {% capture megaNavImageSrc %}{{ link.object | img_url: 'large' }}{% endcapture %}
+                            {% endif %}
+                          {% endif %}
+                       
+                          <li data-image-src="{{ megaNavImageSrc }}" data-image-alt="{{ megaNavImageAlt }}"><a href="{{ link.url }}">{{ link.title }}</a></li>
+                        {% endfor %}
+                      </ul>
+
+                    {% endif %}
+                  {% endfor %}
+                </div>
+
+              </div>
+            {% endif %}
+          {% endif %}
+
+        </li>
+       
+      {% endfor %}
+      
+      {% if shop.customer_accounts_enabled %}
+        <li class="mobile-link">
+          {% if customer %}
+            <a href="/account">{{ 'layout.header.my_account' | t }}</a>
+          {% else %}
+            {{ 'layout.header.account' | t | customer_login_link }}
+          {% endif %}
+        </li>
+      {% endif %}
+    </ul>
+
+    <a class="cart-count" href="/cart"><span class="cart-count-text">{{ 'layout.header.cart' | t }}</span> (<span class="cart-count-number">{{ cart.item_count }}</span>)</a>
+    </div>
+  </nav>
+</div>

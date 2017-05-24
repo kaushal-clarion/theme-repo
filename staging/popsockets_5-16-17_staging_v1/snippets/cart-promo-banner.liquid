@@ -1,0 +1,15 @@
+{% assign jmCount = 0 %}
+
+{% for item in cart.items %}
+  {% if item.product.tags contains 'collection-Jenna Marbles' %}
+    {% assign thisMany = item.quantity %}
+    {% assign jmCount = jmCount | plus: thisMany %}
+  {% endif %}
+{% endfor %}
+
+{% if jmCount > 0 %}
+<div id="cart-promo-banner">
+  <h5>Did you know that if you buy 3 Jenna Marbles PopSockets you get 1 FREE?</h5>
+  <a href="/collections/jenna-marbles">Click here to see the Jenna Marbles Collection.</a>
+</div>
+{% endif %}

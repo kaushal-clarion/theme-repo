@@ -1,0 +1,54 @@
+<div class="masonry-features-wrapper has-animation">
+  {% assign disable_collections = settings.collection_disable_list | split:',' %}
+  {% assign order_collections = settings.collection_ordering_list | split:',' %}
+  {% assign collection_names = collections | map: 'title'%}
+  {% assign uniq_collection_names = order_collections | concat: collection_names | uniq %}
+  {% assign start_count = 1 %}
+  {% for collection_name in uniq_collection_names %}
+    {% assign collection_name_dummy = collection_name | strip | downcase%}
+    {% for collection_obj in collections%}
+      {% assign collection_title_dummy = collection_obj.title | strip | downcase%}
+      {% if collection_name_dummy == collection_title_dummy%}
+        {% assign collection = collection_obj%}
+      {% endif %}
+    {% endfor %}
+    {% if collection %}
+      {% unless disable_collections contains collection.title%}
+        {% assign temp_count = start_count | modulo:9 %}
+        {% if temp_count == 0%}
+          {% assign article_count = 9 %}
+        {% else %}
+          {% assign article_count = temp_count %}
+        {% endif%}
+        {% if temp_count == 1%}
+          <section class="masonry-features">
+        {% endif %}
+          <article data-url="{{ collection.url }}" class="masonry-feature feature-{{article_count}} color-white enable-mobile-true has-link">
+            <figure class="">
+              <a href="{{ collection.url }}">
+                {% if collection.image %}
+                  <img src="{{ collection | img_url: 'grande' }}"  alt="{{ collection.title | escape }}" display="block" width="120px" />
+                  {% else %}
+                  <img src="{{ collection.products.first | img_url: 'grande' }}"  alt="{{ collection.title | escape }}" display="block" width="120px" />
+                {% endif %}
+              </a>
+            </figure>
+            <div class="masonry-feature-text">
+              <a href="{{ collection.url }}">
+                <p class="masonry-feature-title">
+                  {{collection.title}}
+                </p>
+              </a>
+            </div>
+          </article>
+          {% assign start_count = start_count | plus: 1 %}
+         {% if temp_count == 0%}
+           </section>
+         {% endif %}
+      {% endunless %}
+    {% else%}
+       {% assign collection = false%}
+    {% endif%}
+  {% endfor %}
+
+</div>

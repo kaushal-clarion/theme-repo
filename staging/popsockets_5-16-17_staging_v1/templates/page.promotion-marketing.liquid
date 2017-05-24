@@ -1,0 +1,64 @@
+
+<div class="promotion-marketing">
+   <div class="slideshow">
+  {% if settings.slideshow %}
+    {% include 'home-slideshow-clone1' %}
+    {% endif %}
+     
+     
+  </div>
+  
+  
+  <div class="collection {{settings.collection-promo1}}">
+
+    {% assign default_collection = collections[settings.collection-default-name-clone1]%}
+
+    <div class="slider responsive lazy collection-slideshow">
+      <a href="{{default_collection.url}}" class="collection-title {%if settings.enable-collection-slider-title-clone1%}enable-for-web{%endif%} {%if settings.enable-collection-slider-title-on-mobile-clone1%}enable-for-mobile{%endif%}">
+        {% if settings.enable-collection-title-as-slider-title-clone1%}
+        <span>{{default_collection.title}}</span>
+        {% else%}
+        <span>{{settings.collection-slider-title-clone1}}</span>
+        {% endif%}
+      </a>
+
+      {% for c_product in default_collection.products %}
+      <div>
+
+        <div class="image">  <a href="{{c_product.url}}">
+          <img class="slide-image" alt="Alt" src="{{ c_product.images[0] | img_url: 'medium' }}" />
+          <img class="hidden" src="{{ c_product.images[1] | img_url: 'medium' }}" alt="{{ product.images.last.alt | escape }}" />
+          <span class="desktop-title">{{c_product.title}}</span></a>
+        </div>
+
+      </div>
+      {% endfor%}
+    </div>
+
+  </div>
+  
+  <div class="clone-1-masonry">
+    {% if settings.masonry-features %}
+    {% include 'masonry-clone1' %}
+  {% endif %}
+  </div>
+  
+  
+   <div class="introduction-message">
+     {% if settings.display-introduction-message-promo1 %}
+    {% include 'introduction-message-promo1' %}
+    {% endif %}
+  </div>
+  <div class="featured-Collection">
+     {% if settings.featured-collections-promo1 %}
+    {% include 'featured-collection-promo1' %}
+    {% endif %}
+  </div>
+  
+  <div class="featured-products">
+     {% if settings.featured-products-promo1 %}
+    {% include 'featured-products-promo1' %}
+    {% endif %}
+  </div>
+  
+</div>

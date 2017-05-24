@@ -1,0 +1,54 @@
+<div class="main-collection-nav">
+  <div class="collection-nav">
+    {% assign disable_collections = settings.collection_disable_list | split:',' %}
+    {% assign order_collections = settings.collection_ordering_list | split:',' %}
+    {% assign collection_names = collections | map: 'title'%}
+    {% assign uniq_collection_names = order_collections | concat: collection_names | uniq %}
+    {% assign used_custom_upload = true %}
+    {% assign custom_upload_title = settings.custom-upload-title | strip | downcase %}
+    <a href="#">
+      <span class='collection-item-mobile'> 
+        {{collection.title}} + 
+      </span>
+    </a>
+    {% for collection_name in uniq_collection_names %}
+      {% assign collection_name_dummy = collection_name | strip | downcase%}
+      {% assign collection_test = nil%}
+      {% for collection_obj in collections%}
+        {% assign collection_title_dummy = collection_obj.title | strip | downcase%}
+        {% if collection_name_dummy == collection_title_dummy%}
+          {% assign collection_test = collection_obj%}
+        {% endif %}
+      {% endfor %}
+      {% if custom_upload_title == collection_name_dummy and settings.add-custom-upload%}
+        <a href="{{settings.custom-upload-url}}" class="collection-item-link">
+          <span class='collection-item-nav'>
+            {{collection_test.title}}
+          </span>
+        </a>
+        {% assign used_custom_upload = false%}
+      {% else %}
+        {% if collection_test %}
+          {% unless disable_collections contains collection_test.title%}
+            <a href="{{ collection_test.url }}" class="collection-item-link">
+              {% unless collection.title == collection_test.title %}
+                  <span class='collection-item-nav'>
+                    {{collection_test.title}}
+                  </span>
+               {% endunless %}
+            </a>
+          {% endunless %}
+        {% else %}
+          {% assign collection_test = false%}
+        {% endif%}
+      {% endif%}
+    {% endfor %}
+    {%if settings.add-custom-upload and used_custom_upload%}
+        <a href="{{settings.custom-upload-url}}" class="collection-item-link">
+           <span class='collection-item-nav'>
+             "{{settings.custom-upload-title}}"
+          </span>
+        </a>
+    {% endif%}
+  </div>
+</div>

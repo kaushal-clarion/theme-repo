@@ -1,0 +1,34 @@
+<ul id="filter-sort" data-default-sort="{{ collection.default_sort_by }}" >
+	<li id="filter_sort--featured" class="filter__sort-option hide">
+		<input type="radio" name="filter-sort" id="filter_sort-checkbox--featured" class="filter_sort-checkbox hide" value="manual" {% if collection.default_sort_by == 'manual' %}checked{% endif %}>
+		<label class="filter_sort-label" for="filter_sort-checkbox--featured">{{ 'collection.filters.sort_by_featured' | t }}</label>
+	</li>
+	<li class="filter__sort-option">
+		<input type="radio" name="filter-sort" id="filter_sort-checkbox--popular" class="filter_sort-checkbox hide" value="best-selling" {% if collection.default_sort_by == 'best-selling' %}checked{% endif %}>
+		<label class="filter_sort-label" for="filter_sort-checkbox--popular">{{ 'collection.filters.sort_by_popular' | t }}</label>
+	</li>
+	<li class="filter__sort-option">
+		<input type="radio" name="filter-sort" id="filter_sort-checkbox--name-asc" class="filter_sort-checkbox hide" value="title-ascending" {% if collection.default_sort_by == 'title-ascending' %}checked{% endif %}>
+		<label class="filter_sort-label" for="filter_sort-checkbox--name-asc">{{ 'collection.filters.sort_by_name_ascending' | t }}</label>
+	</li>
+	<li class="filter__sort-option">
+		<input type="radio" name="filter-sort" id="filter_sort-checkbox--name-desc" class="filter_sort-checkbox hide" value="title-descending" {% if collection.default_sort_by == 'title-descending' %}checked{% endif %}>
+		<label class="filter_sort-label" for="filter_sort-checkbox--name-desc">{{ 'collection.filters.sort_by_name_descending' | t }}</label>
+	</li>
+	<li class="filter__sort-option">
+		<input type="radio" name="filter-sort" id="filter_sort-checkbox--price-asc" class="filter_sort-checkbox hide" value="price-ascending" {% if collection.default_sort_by == 'price-ascending' %}checked{% endif %}>
+		<label class="filter_sort-label" for="filter_sort-checkbox--price-asc">{{ 'collection.filters.sort_by_price_ascending' | t }}</label>
+	</li>
+	<li class="filter__sort-option">
+		<input type="radio" name="filter-sort" id="filter_sort-checkbox--price-desc" class="filter_sort-checkbox hide" value="price-descending" {% if collection.default_sort_by == 'price-descending' %}checked{% endif %}>
+		<label class="filter_sort-label" for="filter_sort-checkbox--price-desc">{{ 'collection.filters.sort_by_price_descending' | t }}</label>
+	</li>
+	<li class="filter__sort-option">
+		<input type="radio" name="filter-sort" id="filter_sort-checkbox--date-asc" class="filter_sort-checkbox hide" value="created-ascending" {% if collection.default_sort_by == 'created-ascending' %}checked{% endif %}>
+		<label class="filter_sort-label" for="filter_sort-checkbox--date-asc">{{ 'collection.filters.sort_by_date_new_to_old' | t }}</label>
+	</li>
+	<li class="filter__sort-option">
+		<input type="radio" name="filter-sort" id="filter_sort-checkbox--date-desc" class="filter_sort-checkbox hide" value="created-descending" {% if collection.default_sort_by == 'created-descending' %}checked{% endif %}>
+		<label class="filter_sort-label" for="filter_sort-checkbox--date-desc">{{ 'collection.filters.sort_by_date_old_to_new' | t }}</label>
+	</li>
+</ul>

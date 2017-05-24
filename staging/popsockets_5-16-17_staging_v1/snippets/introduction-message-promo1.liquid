@@ -1,0 +1,17 @@
+<section class="introduction-message-wrap">
+  <div class="introduction-message">
+
+{% if settings.introduction-title-promo1 != blank or settings.introduction-tagline-promo1 != blank %}
+  {% if settings.introduction-title-promo1 != blank %}
+    <h2>{{ settings.introduction-title-promo1 }}</h2>
+  {% endif %}
+  {% if settings.introduction-tagline-promo1 != blank %}
+    <h3>{{ settings.introduction-tagline-promo1 }}</h3>
+  {% endif %}
+{% else %}
+  <h2>{{ 'onboarding.introduction_message.title' | t }}</h2>
+  <h3>{{ 'onboarding.introduction_message.tagline' | t }}</h3>
+{% endif %}
+
+      </div>
+    </section>

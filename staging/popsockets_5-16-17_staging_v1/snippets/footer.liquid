@@ -1,0 +1,183 @@
+<footer class="main-footer">
+<div class="footer-wrapper">
+  {% assign linklistCount = 0 %}
+  {% for i in (1..3) %}
+    {% capture linklistOption %}footer-linklist-{{ i }}{% endcapture %}
+    {% capture linklist %}{{ settings[linklistOption] }}{% endcapture %}
+
+    {% if linklist.size > 0 %}
+      {% assign linklistCount = linklistCount | plus: 1 %}
+    {% endif %}
+  {% endfor %}
+  <div class="sign-up-social-main">
+  <div class="clearfix sign-up-main">
+  <form id="email_signup" class="klaviyo_condensed_styling klaviyo_condensed_float klaviyo_condensed_embed_yQXbCX" action="//manage.kmail-lists.com/subscriptions/subscribe" data-ajax-submit="//manage.kmail-lists.com/ajax/subscriptions/subscribe" method="GET" target="_blank" novalidate="novalidate">
+    <h2>Sign up for Popsockets News and Offers</h2>
+    <input type="hidden" name="g" value="yQXbCX">
+  <div class="klaviyo_field_group">
+    <label for="k_id_email">Newsletter Sign Up</label>
+    <input type="email" value="" name="email" id="k_id_email" placeholder="Your email" />
+  </div>
+  
+  <div class="klaviyo_form_actions">
+    <button type="submit" class="klaviyo_submit_button">Go</button>
+  </div>
+    <div class="klaviyo_messages">
+    <div class="success_message" style="display:none;"></div>
+    <div class="error_message" style="display:none;"></div>
+    </div>
+</form>
+    </div>
+  
+  <div class="social-icons-main">
+  	<div class="sub-footer {% if settings.footer-social-links %} social-link-enable {% endif%}">
+    {% if shop.enabled_payment_types.size > 0 and settings.footer-payment-options %}
+      <ul class="payment-options">
+        {% for type in shop.enabled_payment_types %}
+          <li class="payment-icon {{ type | replace: '_','-' }}"></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% if settings.footer-social-links %}
+    	{% include 'social-footer-links' %}
+    {% endif %}
+    {% capture year %}
+      {{ "now" | date: "%Y" }}
+    {% endcapture %}
+    
+     
+    
+<style type="text/css">
+.klaviyo_styling.klaviyo_condensed_embed_yQXbCX,
+.klaviyo_condensed_styling.klaviyo_condensed_embed_yQXbCX {
+  font-family: "Helvetica Neue", Arial;
+}.klaviyo_styling.klaviyo_condensed_embed_yQXbCX label,
+.klaviyo_condensed_styling.klaviyo_condensed_embed_yQXbCX label {
+  color:#222;
+}.klaviyo_styling.klaviyo_condensed_embed_yQXbCX input[type=text],
+.klaviyo_styling.klaviyo_condensed_embed_yQXbCX input[type=email],
+.klaviyo_condensed_styling.klaviyo_condensed_embed_yQXbCX input[type=text],
+.klaviyo_condensed_styling.klaviyo_condensed_embed_yQXbCX input[type=email] {
+  border-radius: 2px;
+}.klaviyo_styling.klaviyo_condensed_embed_yQXbCX .klaviyo_submit_button,
+.klaviyo_condensed_styling.klaviyo_condensed_embed_yQXbCX .klaviyo_submit_button {
+  background-color:#0064cd;
+  border-radius: 2px;
+}.klaviyo_styling.klaviyo_condensed_embed_yQXbCX .klaviyo_submit_button:hover,
+.klaviyo_condensed_styling.klaviyo_condensed_embed_yQXbCX .klaviyo_submit_button:hover {
+  background-color:#0064cd;
+}
+</style>
+<script type="text/javascript" src="//www.klaviyo.com/media/js/public/klaviyo_subscribe.js"></script>
+<script type="text/javascript">
+  KlaviyoSubscribe.attachToForms('#email_signup', {
+    hide_form_on_success: true
+  });
+</script>
+    
+    
+    
+   
+  </div>
+  </div>
+  
+  </div>
+  {% if settings.mailing-list or linklistCount > 0 or settings.footer-text-content != blank or settings.footer-social-links %}
+    <div class="upper-footer">
+
+      {% if settings.footer-text-content != blank %}
+        <div class="footer-blurb">
+          {% if settings.footer-headers %}
+            <h4 class="section-title">{{ settings.footer-text-title }}</h4>
+          {% endif %}
+          <div class="rte">{{ settings.footer-text-content }}</div>
+        </div>
+      {% endif %}
+      
+     
+      
+        {% for i in (1..3) %}
+
+          {% capture linklistOption %}footer-linklist-{{ i }}{% endcapture %}
+          {% capture linklist %}{{ settings[linklistOption] }}{% endcapture %}
+
+          {% if linklists[linklist].links.size > 0 %}
+            <div class="footer-linklist">
+              
+              {% if settings.footer-headers %}
+                <h4 class="section-title">{{ linklists[linklist].title }}</h4>
+              {% endif %}
+
+              <ul>
+                {% for link in linklists[linklist].links %}
+                  <li><a class="{% include 'social-check' %}" href="{{ link.url }}" {% if link.url contains 'http://' or link.url contains 'https://' %}target="_blank"{% endif %}>{{ link.title }}</a></li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+
+        {% endfor %}
+
+      {% if settings.mailing-list %}
+        <div class="mailing-list">
+
+          {% if settings.footer-headers %}
+            <h4 class="section-title">{{ settings.mailing-list-title }}</h4>
+          {% endif %}
+
+          {% if settings.mailing-list-platform == 'mailchimp' or settings.mailing-list-platform == 'campaign-monitor' %}
+            <form action="{{ settings.mailing-list-action-url }}" method="post" name="{% if settings.mailing-list-platform == 'mailchimp' %}mc-embedded-subscribe-form{% endif %}" target="_blank">
+
+              {% if settings.mailing-list-platform == 'mailchimp' %}
+                <input class="mailing-list-email" name="EMAIL" type="email" placeholder="your@email.com" value="">
+              {% endif %}
+
+              {% if settings.mailing-list-platform == 'campaign-monitor' %}
+                <input id="fieldEmail" class="mailing-list-email" name="{{ settings.campaign-monitor-name }}" type="email" placeholder="{{ 'general.general.email_placeholder' | t }}" required />
+              {% endif %}
+
+              <div class="mailing-list-submit">
+                <input class="submit" name="subscribe" type="submit" value="{{ 'layout.footer.newsletter_subscribe' | t }}">
+              </div>
+
+            </form>
+          {% else %}
+
+            {% form 'customer' %}
+              <input class="mailing-list-email" name="contact[email]" type="email" placeholder="your@email.com" value="">
+              <input type="hidden" id="contact_tags" name="contact[tags]" value="prospect,newsletter"/>
+              <div class="mailing-list-submit">
+                <input class="submit" name="subscribe" type="submit" value="{{ 'layout.footer.newsletter_subscribe' | t }}">
+              </div>
+            {% endform %}
+
+            <div class="modal-wrapper modal-mailing-list">
+              <div class="modal">
+                <h3 class="section-title">{{ settings.mailing-list-modal-title }}</h3>
+                <p>{{ settings.mailing-list-modal-description }}</p>
+                <span class='button dismiss'>{{ settings.mailing-list-modal-button-text }}</span>
+              </div>
+            </div>
+
+          {% endif %}
+
+        </div>
+      {% endif %}
+
+    </div>
+  {% endif %}
+
+   <div class="copyright-wrapper">
+      {% capture shopName %}
+        {{ shop.name | link_to: '/' }}
+      {% endcapture %}
+      <p class="copyright" role="contentinfo">{{ 'layout.footer.copyright_html' | t: year: year, shop_name: shopName}}</p>
+    </div>
+
+  </div>
+  
+  <!-- Start of popsockets Zendesk Widget script -->
+<script>/*<![CDATA[*/window.zEmbed||function(e,t){var n,o,d,i,s,a=[],r=document.createElement("iframe");window.zEmbed=function(){a.push(arguments)},window.zE=window.zE||window.zEmbed,r.src="javascript:false",r.title="",r.role="presentation",(r.frameElement||r).style.cssText="display: none",d=document.getElementsByTagName("script"),d=d[d.length-1],d.parentNode.insertBefore(r,d),i=r.contentWindow,s=i.document;try{o=s}catch(e){n=document.domain,r.src='javascript:var d=document.open();d.domain="'+n+'";void(0);',o=s}o.open()._l=function(){var e=this.createElement("script");n&&(this.domain=n),e.id="js-iframe-async",e.src="https://assets.zendesk.com/embeddable_framework/main.js",this.t=+new Date,this.zendeskHost="popsockets.zendesk.com",this.zEQueue=a,this.body.appendChild(e)},o.write('<body onload="document._l();">'),o.close()}();
+/*]]>*/</script>
+<!-- End of popsockets Zendesk Widget script -->
+</footer>

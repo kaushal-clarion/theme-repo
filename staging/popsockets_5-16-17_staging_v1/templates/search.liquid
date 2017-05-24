@@ -1,0 +1,100 @@
+<h1 class="page-title">
+  {% if search.performed %}
+    {{ 'general.search.header_search_performed' | t }}
+  {% else %}
+    {{ 'general.search.header' | t }}
+  {% endif %}
+</h1>
+
+{% include 'breadcrumbs' %}
+
+<div class="search-results-wrapper">
+{% unless search.terms contains "Custom" or search.terms contains "custom"  %}
+
+  {% if search.performed %}
+    <div class="search-results-count">
+      {% comment %}
+      <p>{{ 'general.search.search_results' | t: count: search.results_count, search_terms: search.terms }}</p>
+      {% endcomment %}
+    </div>
+
+    {% paginate search.results by 9999 %}
+      {% assign productResultsCount = 0 %}
+      {% assign otherResultsCount = 0 %}
+      {% for item in search.results  %}
+       {% unless item.type == "Customizer" or search.terms contains "Cust" %}  
+        {% if item.featured_image  %}         
+          {% assign productResultsCount = productResultsCount | plus: 1 %}
+        {% else %}
+          {% assign otherResultsCount = productResultsCount | plus: 1 %}
+        {% endif %}
+        {% endunless %}
+      {% endfor %}
+     {% assign search.results_count = productResultsCount %}
+
+      {% if productResultsCount > 0 %}
+        <div class="search-results-products">
+          {% for item in search.results %}
+            {% if item.featured_image %}
+              {% include 'product-list-item' %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if otherResultsCount > 0 %}
+        <div class="search-results-other">
+          <h2 class="section-title">{{ 'general.search.other_results' | t }}</h2>
+
+          <div class="search-results-list">
+            {% for item in search.results %}
+              {% if item.object_type != 'product' %}
+                <article class="search-results-item">
+
+                  <div class="search-results-data">
+                    <h3 class="search-result-title">
+                      <a class="search-result-link" href="{{ item.url }}">{{ item.title }}</a>
+                    </h3>
+                    {% if item.object_type == 'article' %}
+                      <time class="search-result-date">{{ item.published_at | date: format: 'short_month' }}</time>
+
+                      <div class="search-result-summary rte">
+                        {% if item.image %}
+                          <div class="search-result-image">
+                            <img src="{{ item.image | img_url: '1024x1024'}}" alt="{{ item.title }}">
+                          </div>
+                        {% endif %}
+                        <p>{{ item.excerpt_or_content | strip_html | truncatewords: 20 }}</p>
+                      </div>
+                    {% else %}
+                      <div class="search-result-summary rte">
+                        <p>{{ item.content | strip_html | truncatewords: 20 }}</p>
+                      </div>
+                    {% endif %}
+                  </div>
+
+                </article>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if paginate.previous or paginate.next %}
+        {% include 'pagination' %}
+      {% endif %}
+    {% endpaginate %}
+
+  {% else %}
+
+    <p class="no-search">{{ 'general.search.no_search' | t }}</p>
+
+  {% endif %}
+  {% endunless %}
+</div>
+<script>
+  $(document).ready(function(){
+    // As Pagination doesn't support filtering through search we hide it
+    $('.pagination').hide();
+  });
+</script>

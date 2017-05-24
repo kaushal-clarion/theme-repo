@@ -1,0 +1,75 @@
+{% assign product_dump = all_products[settings.default-popup-product] %}
+{% assign variant_dump = product_dump.selected_or_first_available_variant %}
+<section id="popclip-popup" class="quick-shop-wrapper visible product-popup", style='display:none'>
+  <div class="quick-shop active">
+     <div class="color-wrapper">
+    <div class="relative">
+    <div class="popup-border">
+    <div class="product-images popclip-images">
+      <div class="product-main-image popup-image-sec">
+        {% assign product_dump_image = product_dump.images.first%}
+<!--<img alt="{{ product_dump_image.alt | escape }}" src="{{ product_dump_image | img_url: '1024x1024' }}"> -->
+       <img alt="{{ product_dump_image.alt | escape }}" src="{{ 'popclip.png' | asset_url }}">
+      </div>
+    </div>
+
+    <div class="product-details-wrapper">
+
+<h2 class="product-title"><!--{{ product_dump.title }}--> Have Popsocket, need mount?</h2>
+  {% if product_dump.description != blank %}
+    <div class="product-description rte" itemprop="description">
+       <!--{{ product_dump.description }}-->
+      <p>Mount your phone to your dashboard,<br>
+      mirror, refrigerator, bed post,<br> or (almost) anywhere.
+      </p>
+      <img class="mount-img" src="https://cdn.shopify.com/s/files/1/1161/1916/files/v-1.png">
+    </div>
+  {% endif %}
+     
+
+	<form action="/cart/add" method="post" id="product-form-{{ product_dump.id }}">
+
+        <div class="product-options" style="display:none;">
+          <select class="product-variants" name="id" id="product-variants-{{ product_dump.id }}">
+            {% for pvariant in product_dump.variants %}
+            <option {% if pvariant == product_dump.selected_or_first_available_variant %} selected="selected" {% endif %} data-sku="{{ pvariant.sku }}" value="{{ pvariant.id }}">{{ pvariant.title }} - {{ pvariant.price | money }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="product-quantity inline-input-wrapper" style="display:none;">
+          <label>{{ 'general.general.quantity' | t }}</label>
+          <input type="text" name="quantity" value="1" />
+        </div>
+
+        <div class="add-to-carts">
+          {% if product_dump.available %}
+          <div class="popup-price-sec">
+             <p itemtype="http://schema.org/Offer" itemscope="" itemprop="offers" class="product-price">
+        <span class="product-price-minimum money">
+          {{ product_dump.price_min | money }}
+        </span>
+
+        <link href="http://schema.org/InStock" itemprop="availability">
+      </p>
+            <!--{{ 'products.product.add_to_cart' | t }}-->
+          <input type="submit" id="addPopclip" value=" Add PopClip" />
+            </div>
+          {% else %}
+          <input type="button" class="disabled" disabled="disabled" value="{{ 'products.product.sold_out' | t }}" />
+          {% endif %}
+          <a href='/cart' class="cta-button blue"> No Thanks </a>
+        </div>
+
+        <div class="product-message"></div>
+
+      </form>
+
+<div itemprop="description" class="product-description rte"></div>
+    </div>
+    </div>
+  </div>
+   </div>
+  </div>
+</section>
+

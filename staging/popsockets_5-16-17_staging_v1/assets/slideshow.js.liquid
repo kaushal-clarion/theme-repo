@@ -1,0 +1,22 @@
+
+      if($(".collection-slideshow").size() > 0 && $(".collection-slideshow .slide-image").size() > 0){
+	    
+        if(document.getElementsByClassName("slide-image")[0].complete){
+             $(".collection-slideshow").show();
+             $(".slideshow-slides").flickity({
+                wrapAround: true,
+                pageDots: false
+              });
+          }else{
+            $(".slide-image:first").on("load", function() {
+              $(".collection-slideshow").show();
+              $(".slideshow-slides").flickity({
+                wrapAround: true,
+                pageDots: false
+              });
+            }).on("error", function(){
+              console.log("loading error")
+            })
+          }
+        }
+  
